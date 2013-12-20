@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>lista en node.js y mysql</title>
+      
+    </head>
+    <body>
+        <h2>lista en node.js y mysql</h2>
+        <fieldset>
+	        <legend>ubic geo</legend>
+	        <label for="dep">departamento</label>
+	        <select name="dep" id="dep"></select>
+          <select name="dep_r" id="dep_r"></select>
+        </fieldset>
+         <script src="/socket.io/socket.io.js"></script>
+ 
+        <script type="text/javascript">
+             var io = io.connect('http://localhost');
+             
+
+                var dep = document.getElementById('dep');
+                dep.setAttribute('onchange','evento_change()');
+                function evento_change(){
+                  io.emit('provincia',{id:dep.value});
+                }
+
+            io.on('departamento', function(data) {
+                var total = data.length;
+                dep.length = total;
+                for (var i = 0; i < total; i++) {
+                    dep.options[i] = new Option(data[i].descripcion,data[i].id );//descripcion
+                }
+
+                //emite un evento en el cliente y este es enviado al server
+
+                io.emit('provincia',{id:dep.value});
+                 
+                
+            //escucha al metodo prov_cleinte_serv
+            io.on('prov_cleinte_serv',function(data){
+              console.log(data);
+                var total = data.length;
+                dep_r.length = total;
+                for (var i = 0; i < total; i++) {
+                    dep_r.options[i] = new Option(data[i].descripcion,data[i].id );
+                }
+            });
+
+            });
+        </script>
+    </body>
+</html>
+ 
+<!-- 
+
+ Server
+
+var io = require('socket.io').listen(80);
+
+io.sockets.on('connection', function (socket) {
+  socket.emit('news', { hello: 'world' });
+  socket.on('my other event', function (data) {
+    console.log(data);
+  });
+});
+Client
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  var socket = io.connect('http://localhost');
+  socket.on('news', function (data) {
+    console.log(data);
+    socket.emit('my other event', { my: 'data' });
+  });
+</script>
+-->
